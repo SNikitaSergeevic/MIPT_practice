@@ -1,0 +1,24 @@
+# ML библиотеки
+scikit-learn==1.3.2
+pandas==2.1.3
+numpy==1.25.2
+
+# для проверки данных
+deepchecks==0.17.5
+evidently==0.4.12
+
+# логирование экспериментов
+mlflow==2.9.2
+
+# Дополнительные утилиты
+jupyter==1.0.0
+matplotlib==3.8.0
+seaborn==0.13.0
+plotly==5.17.0
+
+# работа с данными
+requests==2.31.0
+python-dotenv==1.0.0
+
+# тестирование
+pytest==7.4.3
