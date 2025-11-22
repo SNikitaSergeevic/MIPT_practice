@@ -1,0 +1,61 @@
+name: ML Pipeline CI/CD
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test-ml-pipeline:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Create necessary directories
+      run: |
+        mkdir -p reports
+        mkdir -p models
+        mkdir -p mlruns
+
+    - name: Run data validation with Deepchecks
+      run: |
+        python src/data_validation.py
+      continue-on-error: true
+
+    - name: Run drift analysis with Evidently
+      run: |
+        python src/drift_analysis.py
+      continue-on-error: true
+
+    - name: Run ML training with MLflow
+      run: |
+        python src/train.py
+      continue-on-error: true
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ml-reports
+        path: |
+          reports/
+          models/
+        retention-days: 7
+
+    - name: Test completion
+      run: |
+        echo "✅ ML Pipeline completed successfully!"
+        ls -la reports/

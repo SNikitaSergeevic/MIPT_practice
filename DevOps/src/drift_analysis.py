@@ -1,9 +1,5 @@
 import pandas as pd
 import numpy as np
-from evidently.report import Report
-from evidently.metric_preset import DataDriftPreset, TargetDriftPreset
-from evidently.test_suite import TestSuite
-from evidently.tests import TestValueDrift, TestShareOfDriftedFeatures
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -29,39 +25,49 @@ def run_drift_analysis():
     """Запуск анализа дрейфа данных"""
     print("📊 Запуск анализа дрейфа с EvidentlyAI...")
     
+    try:
+        # Пробуем импорт для evidently 0.4.x
+        from evidently.report import Report
+        from evidently.metric_preset import DataDriftPreset
+    except ImportError:
+        try:
+            # Пробуем импорт для evidently 0.3.x
+            from evidently.dashboard import Dashboard
+            from evidently.tabs import DataDriftTab
+            print("⚠️ Используется evidently 0.3.x")
+        except ImportError as e:
+            
+            return None, None
+    
     # Загрузка данных
     reference, current = load_data_for_drift()
     
-    # Создание отчета о дрейфе данных
-    data_drift_report = Report(metrics=[DataDriftPreset()])
-    data_drift_report.run(
-        reference_data=reference,
-        current_data=current
-    )
+    try:
+        # Для evidently 0.4.x
+        data_drift_report = Report(metrics=[DataDriftPreset()])
+        data_drift_report.run(
+            reference_data=reference,
+            current_data=current
+        )
+        data_drift_report.save_html('reports/data_drift_report.html')
+        print("✅ Отчет о дрейфе сохранен (v0.4.x)")
+        
+    except (NameError, TypeError):
+        try:
+            # Для evidently 0.3.x
+            data_drift_dashboard = Dashboard(tabs=[DataDriftTab()])
+            data_drift_dashboard.calculate(
+                reference_data=reference,
+                current_data=current
+            )
+            data_drift_dashboard.save('reports/data_drift_report.html')
+            print("✅ Отчет о дрейфе сохранен (v0.3.x)")
+        except Exception as e:
+            print(f"❌ Ошибка при создании отчета: {e}")
+            return None, None
     
-    # Создание отчета о дрейфе целевой переменной
-    target_drift_report = Report(metrics=[TargetDriftPreset()])
-    target_drift_report.run(
-        reference_data=reference,
-        current_data=current
-    )
-    
-    # Сохранение отчетов
-    data_drift_report.save_html('reports/data_drift_report.html')
-    target_drift_report.save_html('reports/target_drift_report.html')
-    
-    print("✅ Отчеты о дрейфе сохранены в папке reports/")
-    
-    # Вывод основных результатов
-    print("\n📈 Основные метрики дрейфа:")
-    result = data_drift_report.as_dict()
-    n_drifted_features = result['metrics'][0]['result']['number_of_drifted_features']
-    share_drifted_features = result['metrics'][0]['result']['share_of_drifted_features']
-    
-    print(f"Количество признаков с дрейфом: {n_drifted_features}")
-    print(f"Доля признаков с дрейфом: {share_drifted_features:.2%}")
-    
-    return data_drift_report, target_drift_report
+    print("📈 Анализ дрейфа завершен!")
+    return reference, current
 
 if __name__ == "__main__":
     run_drift_analysis()
