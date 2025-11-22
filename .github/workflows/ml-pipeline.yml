@@ -33,17 +33,17 @@ jobs:
 
     - name: Run data validation with Deepchecks
       run: |
-        python MIPT_practice/DevOps/src/data_validation.py
+        python DevOps/src/data_validation.py
       continue-on-error: true
 
     - name: Run drift analysis with Evidently
       run: |
-        python MIPT_practice/DevOps/src/drift_analysis.py
+        python DevOps/src/drift_analysis.py
       continue-on-error: true
 
     - name: Run ML training with MLflow
       run: |
-        python MIPT_practice/DevOps/src/train.py
+        python DevOps/src/train.py
       continue-on-error: true
 
     - name: Upload artifacts
@@ -51,11 +51,11 @@ jobs:
       with:
         name: ml-reports
         path: |
-          MIPT_practice/DevOps/reports/
-          MIPT_practice/DevOps/models/
+          DevOps/reports/
+          DevOps/models/
         retention-days: 7
 
     - name: Test completion
       run: |
         echo "✅ ML Pipeline completed successfully!"
-        ls -la MIPT_practice/DevOps/reports/
+        ls -la DevOps/reports/
