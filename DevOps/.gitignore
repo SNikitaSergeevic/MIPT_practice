@@ -11,11 +11,6 @@ models/
 *.h5
 *.pth
 
-
-reports/
-*.html
-*.pdf
-
 # Python
 __pycache__/
 *.py[cod]
