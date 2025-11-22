@@ -1,0 +1,54 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+    - path: data/raw/data.csv
+      hash: md5
+      md5: 717820ef0af287ff346c5cabfb4c612c
+      size: 5107
+    - path: src/prepare.py
+      hash: md5
+      md5: 20b52f08d8df71b09ff221bf3f6fedd0
+      size: 1853
+    params:
+      params.yaml:
+        prepare.random_state: 42
+        prepare.split_ratio: 0.2
+    outs:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: de4c4ee6cd0be59abe0b1b5b35bb5587
+      size: 1074
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 98412ad8fa889a9f55b64dd4f7fe140f
+      size: 4098
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/processed/test.csv
+      hash: md5
+      md5: de4c4ee6cd0be59abe0b1b5b35bb5587
+      size: 1074
+    - path: data/processed/train.csv
+      hash: md5
+      md5: 98412ad8fa889a9f55b64dd4f7fe140f
+      size: 4098
+    - path: src/train.py
+      hash: md5
+      md5: b27d1a2b08c9847b7158a8dc39ba2f28
+      size: 3540
+    params:
+      params.yaml:
+        train.model_type: LogisticRegression
+        train.random_state: 42
+    outs:
+    - path: classification_report.json
+      hash: md5
+      md5: c9bbd1aaabce4bb499d02050bee39635
+      size: 443
+    - path: model.pkl
+      hash: md5
+      md5: 5433da7fb114cdae80771a3acb3a941f
+      size: 1583

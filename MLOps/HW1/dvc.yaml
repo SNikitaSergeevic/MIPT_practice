@@ -1,0 +1,29 @@
+stages:
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+      - src/prepare.py
+      - data/raw/data.csv
+    params:
+      - prepare.split_ratio
+      - prepare.random_state
+    outs:
+      - data/processed/train.csv
+      - data/processed/test.csv
+      - data/processed/target_column.txt
+  
+  train:
+    cmd: python src/train.py
+    deps:
+      - src/train.py
+      - data/processed/train.csv
+      - data/processed/test.csv
+      - data/processed/target_column.txt
+    params:
+      - train.model_type
+      - train.random_state
+    outs:
+      - model.pkl
+    metrics:
+      - classification_report.json:
+          cache: false
