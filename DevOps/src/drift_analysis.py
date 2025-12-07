@@ -36,7 +36,7 @@ def run_drift_analysis():
             from evidently.tabs import DataDriftTab
             print("⚠️ Используется evidently 0.3.x")
         except ImportError as e:
-            
+            print(f"❌ Ошибка при создании отчета: {e}")
             return None, None
     
     # Загрузка данных
